@@ -1,0 +1,21 @@
+# Kịch bản 1: Mua hàng thành công - Đủ tồn kho
+**Mô tả**: Mua 2 chiếc Laptop Dell.  
+**Request**: POST [http://127.0.0.1:5002/api/orders]  
+**Body**: {"product_id": "1", "quantity": 2}  
+
+***→ Kết quả mong đợi: Mã 201 Created kèm message "Tạo đơn hàng thành công".***
+
+# Kịch bản 2: Lỗi nghiệp vụ - Hết hàng
+**Mô tả**: Mua Chuột Logitech (mã 2, tồn kho đang là 0)  
+**Request**: POST [http://127.0.0.1:5002/api/orders]  
+**Body**: {"product_id": "2", "quantity": 11}
+
+***→Kết quả mong đợi: Mã 400 Bad Request kèm message "Không đủ hàng trong kho".***
+
+# Kịch bản 3: Lỗi hệ thống - Dịch vụ Product sập
+**Mô tả**: Kiểm tra cơ chế Timeout bảo vệ hệ thống.  
+**Cách test**: Tắt terminal đang chạy product_service.py (Port 5001), chỉ để lại order_service.py (Port 5002) chạy.  
+**Request**: POST [http://127.0.0.1:5002/api/orders]  
+**Body**: {"product_id": "1", "quantity": 1}
+
+***→Kết quả mong đợi: Ứng dụng dừng khoảng 3 giây, rồi trả về mã 503 Service Unavailable kèm message "Dịch vụ kho hiện không phản hồi".***

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo Ứng Dụng Bán Hàng</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 400px; margin: auto; }
+        .box { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+        button { padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%; }
+        #result { margin-top: 15px; padding: 10px; border-radius: 4px; display: none; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h2>Ứng dụng Đặt hàng</h2>
+    <div class="box">
+        <label>Sản phẩm:</label>
+        <select id="productId" style="width: 100%; margin-bottom: 10px; padding: 5px;">
+            <option value="1">Laptop Dell</option>
+            <option value="2">Chuột Logitech</option>
+            <option value="3">Bàn phím cơ</option>
+        </select>
+        <label>Số lượng:</label>
+        <input type="number" id="quantity" value="1" min="1" style="width: 100%; margin-bottom: 10px; padding: 5px;">
+        <button onclick="placeOrder()">Xác nhận Đặt hàng</button>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        async function placeOrder() {
+            const btn = document.querySelector('button');
+            const resultDiv = document.getElementById('result');
+            btn.innerText = 'Đang xử lý...';
+            resultDiv.style.display = 'block';
+            resultDiv.className = '';
+            
+            const payload = {
+                product_id: document.getElementById('productId').value,
+                quantity: parseInt(document.getElementById('quantity').value)
+            };
+
+            try {
+                // Gọi API tới Order Service
+                const response = await fetch('http://127.0.0.1:5002/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'success';
+                    resultDiv.innerHTML = `<b>Thành công!</b><br>Đã đặt ${data.order_details.quantity} x ${data.order_details.product} <br>Tổng tiền: $${data.order_details.total}`;
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = `<b>Lỗi ${response.status}:</b> ${data.error}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `<b>Lỗi kết nối:</b> Order Service không hoạt động.`;
+            }
+            btn.innerText = 'Xác nhận Đặt hàng';
+        }
+    </script>
+</body>
+</html>
